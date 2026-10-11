@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base theme tokens ─────────────────────────────────── */
+:root {
+  color-scheme: light dark;
+
+  /* Light theme */
+  --surface: 250 248 242;
+  --surface-elevated: 255 255 255;
+  --surface-overlay: 255 255 255;
+
+  --text-primary: 17 24 39;
+  --text-secondary: 55 65 81;
+  --text-muted: 107 114 128;
+
+  --border-subtle: 229 231 235;
+  --border-strong: 209 213 219;
+
+  --neutral-100: 243 244 246;   /* gray-100 */
+  --neutral-200: 229 231 235;   /* gray-200 */
+  --neutral-300: 209 213 219;   /* gray-300 */
+  --neutral-400: 156 163 175;   /* gray-400 */
+  --neutral-500: 107 114 128;   /* gray-500 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark theme — Abyssal palette */
+    --surface: 16 14 11;
+    --surface-elevated: 26 23 19;
+    --surface-overlay: 15 13 10;
+
+    --text-primary: 243 244 246;
+    --text-secondary: 209 213 219;
+    --text-muted: 156 163 175;
+
+    --border-subtle: 31 41 55;
+    --border-strong: 55 65 81;
+
+    --neutral-100: 26 23 19;
+    --neutral-200: 38 33 27;
+    --neutral-300: 55 48 40;
+    --neutral-400: 120 113 108;
+    --neutral-500: 168 162 158;
+  }
+}
+
+/* ─── Base layout ─────────────────────────────────────── */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  background-color: rgb(var(--surface));
+  color: rgb(var(--text-primary));
+  transition: background-color 0.2s ease, color 0.2s ease;
+  min-height: 100vh;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--surface));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--border-strong));
+    border-radius: 6px;
+  }
+}
+
+
+/* ─── Wizard animations ──────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+.animate-slideInRight { animation: slideInRight 0.3s ease-out; }
+.animate-slideInLeft { animation: slideInLeft 0.3s ease-out; }
+.animate-shake { animation: shake 0.3s ease-out; }
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slideInDown { animation: slideInDown 0.3s ease-out; }
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
