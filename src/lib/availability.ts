@@ -1,9 +1,8 @@
 /**
  * Availability normalization.
  *
- * The scraper writes site-native values. This module maps them to a single
- * boolean so UI code doesn't have to guess. Extend the "in stock" set here
- * whenever a new site's vocabulary appears.
+ * The scraper writes site-native values. This module maps them to a
+ * canonical classification so UI code doesn't have to guess.
  *
  * Real values seen in this project (extend as needed):
  *   tunisianet:  "En Stock" / "Rupture de stock" / "Disponible"
@@ -12,7 +11,56 @@
  *   mytek:       "En stock" / "Rupture"
  *   spacenet:    "Disponible" / "Rupture"
  *   skymil:      "available" / "unavailable"
+ *
+ * Canonical DB values that the backend filters on:
+ *   "InStock" / "OnOrder" / "OutOfStock"
+ * Keep these in sync with `SELLABLE_AVAILABILITY` in the backend's
+ * `app/core/recommendation_config.py`.
  */
+
+// ═══════════════════════════════════════════════════════
+// Site list
+// ═══════════════════════════════════════════════════════
+export const SITES = [
+  "megapc",
+  "tunisianet",
+  "sbs",
+  "mytek",
+  "spacenet",
+  "skymil",
+] as const;
+
+export type Site = (typeof SITES)[number];
+
+// ═══════════════════════════════════════════════════════
+// Canonical availability values + filter options
+// ═══════════════════════════════════════════════════════
+export const AVAILABILITY_VALUES = [
+  "InStock",
+  "OnOrder",
+  "OutOfStock",
+] as const;
+
+export type AvailabilityValue = (typeof AVAILABILITY_VALUES)[number];
+
+export const AVAILABILITY_FILTER_OPTIONS: ReadonlyArray<{
+  value: "" | AvailabilityValue;
+  label: string;
+}> = [
+  { value: "", label: "Any" },
+  { value: "InStock", label: "In stock" },
+  { value: "OnOrder", label: "On order" },
+  { value: "OutOfStock", label: "Out of stock" },
+];
+
+// ═══════════════════════════════════════════════════════
+// Classification
+// ═══════════════════════════════════════════════════════
+export type AvailabilityKind =
+  | "in_stock"
+  | "on_order"
+  | "out_of_stock"
+  | "unknown";
 
 const IN_STOCK_TOKENS = [
   "in stock",
@@ -43,6 +91,22 @@ const OUT_OF_STOCK_TOKENS = [
   "0",
 ];
 
+// Pre-order / back-order — sellable, but not shippable today.
+// Kept separate from "in stock" so the UI can badge it differently.
+const ON_ORDER_TOKENS = [
+  "onorder",
+  "on order",
+  "on_order",
+  "onbackorder",
+  "on backorder",
+  "backorder",
+  "back order",
+  "preorder",
+  "pre-order",
+  "pre order",
+  "sur commande",
+];
+
 function normalize(value: string | null | undefined): string {
   if (!value) return "";
   return value
@@ -53,53 +117,62 @@ function normalize(value: string | null | undefined): string {
     .replace(/\s+/g, " ");
 }
 
-/**
- * Returns:
- *   true  → product is definitely in stock
- *   false → product is definitely out of stock
- *   null  → the value is unknown/blank, so the UI should NOT assume out of stock
- *
- * Prefer the "in stock tokens" match first, then the "out of stock" tokens,
- * else fall back to a substring check.
- */
-export function parseAvailability(
-  value: string | null | undefined,
-): boolean | null {
-  const v = normalize(value);
-  if (!v) return null;
-
-  if (IN_STOCK_TOKENS.includes(v)) return true;
-  if (OUT_OF_STOCK_TOKENS.includes(v)) return false;
-
-  // Substring fallback — catches "Usually available in 2 days" etc.
-  for (const token of OUT_OF_STOCK_TOKENS) {
-    if (v.includes(token)) return false;
+function matchesAny(v: string, tokens: string[]): boolean {
+  if (tokens.includes(v)) return true;
+  for (const t of tokens) {
+    if (v.includes(t)) return true;
   }
-  for (const token of IN_STOCK_TOKENS) {
-    if (v.includes(token)) return true;
-  }
-
-  // Unknown vocabulary — do NOT claim out of stock.
-  return null;
+  return false;
 }
 
 /**
- * Convenience for components that render an "out of stock" overlay.
- * Treats `null` (unknown) as in stock so we never falsely warn the user.
+ * Four-state availability classification.
+ *
+ *   in_stock      → definitely buyable now
+ *   on_order      → buyable, but ships later
+ *   out_of_stock  → not buyable
+ *   unknown       → blank or unrecognized; UI should not warn
+ */
+export function availabilityKind(
+  value: string | null | undefined,
+): AvailabilityKind {
+  const v = normalize(value);
+  if (!v) return "unknown";
+
+  if (matchesAny(v, ON_ORDER_TOKENS)) return "on_order";
+  if (matchesAny(v, OUT_OF_STOCK_TOKENS)) return "out_of_stock";
+  if (matchesAny(v, IN_STOCK_TOKENS)) return "in_stock";
+  return "unknown";
+}
+
+/**
+ * Legacy two-state helper.
+ * `on_order` counts as "in stock" here because the product is
+ * still buyable — the card adds a separate badge for it.
+ * `unknown` also counts as "in stock" so we never falsely warn.
  */
 export function isInStock(value: string | null | undefined): boolean {
-  const parsed = parseAvailability(value);
-  return parsed !== false;   // true or null → considered in stock
+  const k = availabilityKind(value);
+  return k === "in_stock" || k === "on_order" || k === "unknown";
 }
 
 /**
- * For badges that want a three-state display.
+ * Legacy three-state label helper.
  */
 export function availabilityLabel(
   value: string | null | undefined,
 ): "in_stock" | "out_of_stock" | "unknown" {
-  const parsed = parseAvailability(value);
-  if (parsed === true) return "in_stock";
-  if (parsed === false) return "out_of_stock";
+  const k = availabilityKind(value);
+  if (k === "in_stock" || k === "on_order") return "in_stock";
+  if (k === "out_of_stock") return "out_of_stock";
   return "unknown";
+}
+
+export function parseAvailability(
+  value: string | null | undefined,
+): boolean | null {
+  const k = availabilityKind(value);
+  if (k === "in_stock" || k === "on_order") return true;
+  if (k === "out_of_stock") return false;
+  return null;
 }

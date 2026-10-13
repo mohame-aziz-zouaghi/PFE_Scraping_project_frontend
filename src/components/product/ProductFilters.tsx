@@ -1,24 +1,6 @@
 ﻿import SiteBadge from "./SiteBadge";
-
-export interface Filters {
-  site: string;
-  brand: string;
-  category: string;
-  availability: string;
-  sort_by: "name" | "price" | "brand" | "category" | "last_updated_at";
-  sort_order: "asc" | "desc";
-}
-
-export const SITES = [
-  "megapc",
-  "tunisianet",
-  "sbs",
-  "mytek",
-  "spacenet",
-  "skymil",
-];
-
-export const AVAILABILITIES = ["in_stock", "out_of_stock"];
+import { SITES, AVAILABILITY_FILTER_OPTIONS } from "@/lib/availability";
+import type { Filters } from "./productFilterTypes";
 
 export default function ProductFilters({
   filters,
@@ -84,10 +66,9 @@ export default function ProductFilters({
             onChange={(e) => onChange({ availability: e.target.value })}
             className="w-full text-sm rounded-base border border-border-strong bg-surface-elevated text-text-primary px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            <option value="">Any</option>
-            {AVAILABILITIES.map((a) => (
-              <option key={a} value={a}>
-                {a.replace("_", " ")}
+            {AVAILABILITY_FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value || "any"} value={opt.value}>
+                {opt.label}
               </option>
             ))}
           </select>

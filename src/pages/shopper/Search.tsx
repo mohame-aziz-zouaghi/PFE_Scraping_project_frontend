@@ -14,10 +14,11 @@ import EmptyState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
 import Pagination from "@/components/ui/Pagination";
 import Highlighted from "@/components/search/Highlighted";
-import SearchFilters, {
+import SearchFilters from "@/components/search/SearchFilters";
+import {
   DEFAULT_SEARCH_FILTERS,
   type SearchFilterState,
-} from "@/components/search/SearchFilters";
+} from "@/components/search/searchFilterTypes";
 import type { ProductSummary } from "@/api/products";
 import { useClickLogger } from "@/hooks/useEventLogger";
 
@@ -158,9 +159,6 @@ export default function Search() {
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-8">
-      {/* ═══════════════════════════════════════════════════
-          HEADER — centered search input
-          ═══════════════════════════════════════════════════ */}
       <header className="flex flex-col items-center text-center pt-4 pb-2">
         <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
           Search products
@@ -193,7 +191,6 @@ export default function Search() {
                 autoComplete="off"
               />
 
-              {/* Autocomplete dropdown — left-aligned under the input */}
               {showSuggestions &&
                 suggestQuery.data &&
                 suggestQuery.data.items.length > 0 && (
@@ -230,9 +227,6 @@ export default function Search() {
         </form>
       </header>
 
-      {/* ═══════════════════════════════════════════════════
-          RESULTS AREA — filters left, results center
-          ═══════════════════════════════════════════════════ */}
       <div className="flex gap-6 lg:gap-8">
         <SearchFilters
           filters={filters}

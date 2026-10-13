@@ -4,7 +4,7 @@ import Stars from "@/components/ui/Stars";
 import SiteBadge from "./SiteBadge";
 import { effectivePrice, formatPrice, hasDiscount } from "@/lib/format";
 import type { ProductSummary } from "@/api/products";
-import { isInStock } from "@/lib/availability";
+import { availabilityKind } from "@/lib/availability";
 import clsx from "clsx";
 import WishlistButton from "./WishlistButton";
 import Highlighted from "../search/Highlighted";
@@ -13,7 +13,6 @@ export default function ProductCard({
   product,
   onClick,
   highlightQuery,
-
 }: {
   product: ProductSummary;
   onClick?: () => void;
@@ -28,7 +27,10 @@ export default function ProductCard({
   const rating = getStableRating(product.id);
   const effective = effectivePrice(product);
   const discounted = hasDiscount(product);
-  const inStock = isInStock(product.availability);
+
+  const kind = availabilityKind(product.availability);
+  const onOrder = kind === "on_order";
+  const outOfStock = kind === "out_of_stock";
 
   return (
     <article
@@ -72,27 +74,53 @@ export default function ProductCard({
           </div>
         )}
 
+        {/* Discount badge — top-left */}
         {discounted && product.price != null && effective != null && (
-          <span className="absolute top-3 left-3 inline-flex items-center rounded-full bg-danger-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+          <span className="absolute top-3 left-3 z-[1] inline-flex items-center rounded-full bg-danger-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
             -{Math.round(((product.price - effective) / product.price) * 100)}%
           </span>
         )}
 
-        {!inStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+        {/* On-order badge — top-right, below the wishlist button */}
+        {onOrder && (
+          <span
+            className={clsx(
+              "absolute top-12 right-3 z-[1] inline-flex items-center gap-1",
+              "rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm",
+            )}
+          >
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            On order
+          </span>
+        )}
+
+        {/* Out-of-stock overlay — above everything except the wishlist */}
+        {outOfStock && (
+          <div className="absolute inset-0 z-[2] bg-black/40 flex items-center justify-center">
             <span className="rounded-full bg-white/95 text-gray-900 text-xs font-semibold px-3 py-1.5">
               Out of stock
             </span>
           </div>
         )}
 
-        <div className="absolute top-3 right-3 z-[1]">
+        <div className="absolute top-3 right-3 z-[3]">
           <WishlistButton
             productId={product.id}
             size="sm"
             onRequireAuth={() => {
-              // Let the caller decide. If nothing passed, fall through
-              // to the /login redirect behavior of ProtectedRoute.
               window.location.href = "/login";
             }}
           />
@@ -121,25 +149,25 @@ export default function ProductCard({
         </Link>
 
         <div className="flex items-center gap-2 text-xs text-text-muted min-h-[1rem]">
-        {product.brand && (
-          <span className="truncate">
-            {highlightQuery ? (
-              <Highlighted text={product.brand} query={highlightQuery} />
-            ) : (
-              product.brand
-            )}
-          </span>
-        )}          
-        {product.brand && product.category && <span>·</span>}
-        {product.category && (
-          <span className="truncate">
-            {highlightQuery ? (
-              <Highlighted text={product.category} query={highlightQuery} />
-            ) : (
-              product.category
-            )}
-          </span>
-        )}
+          {product.brand && (
+            <span className="truncate">
+              {highlightQuery ? (
+                <Highlighted text={product.brand} query={highlightQuery} />
+              ) : (
+                product.brand
+              )}
+            </span>
+          )}
+          {product.brand && product.category && <span>·</span>}
+          {product.category && (
+            <span className="truncate">
+              {highlightQuery ? (
+                <Highlighted text={product.category} query={highlightQuery} />
+              ) : (
+                product.category
+              )}
+            </span>
+          )}
         </div>
 
         <div className="flex items-end justify-between gap-3 pt-1 mt-auto">

@@ -1,19 +1,6 @@
 import SiteBadge from "@/components/product/SiteBadge";
-import { SITES, AVAILABILITIES } from "@/components/product/ProductFilters";
-
-export interface SearchFilterState {
-  site: string;
-  availability: string;
-  minPrice: number | "";
-  maxPrice: number | "";
-}
-
-export const DEFAULT_SEARCH_FILTERS: SearchFilterState = {
-  site: "",
-  availability: "",
-  minPrice: "",
-  maxPrice: "",
-};
+import { SITES, AVAILABILITY_FILTER_OPTIONS } from "@/lib/availability";
+import type { SearchFilterState } from "./searchFilterTypes";
 
 const BUDGET_MIN = 0;
 const BUDGET_MAX = 5000;
@@ -27,8 +14,10 @@ export default function SearchFilters({
   onChange: (next: Partial<SearchFilterState>) => void;
   onReset: () => void;
 }) {
-  const minValue = filters.minPrice === "" ? BUDGET_MIN : Number(filters.minPrice);
-  const maxValue = filters.maxPrice === "" ? BUDGET_MAX : Number(filters.maxPrice);
+  const minValue =
+    filters.minPrice === "" ? BUDGET_MIN : Number(filters.minPrice);
+  const maxValue =
+    filters.maxPrice === "" ? BUDGET_MAX : Number(filters.maxPrice);
 
   const handleRange = (which: "min" | "max", value: number) => {
     if (which === "min") {
@@ -51,7 +40,6 @@ export default function SearchFilters({
           </button>
         </div>
 
-        {/* Budget */}
         <div>
           <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
             Budget (DT)
@@ -111,7 +99,6 @@ export default function SearchFilters({
           </div>
         </div>
 
-        {/* Site */}
         <div>
           <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
             Site
@@ -145,37 +132,24 @@ export default function SearchFilters({
           </div>
         </div>
 
-        {/* Availability */}
         <div>
           <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
             Availability
           </h3>
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="availability"
-                checked={filters.availability === ""}
-                onChange={() => onChange({ availability: "" })}
-                className="text-brand-600 focus:ring-brand-500"
-              />
-              <span className="text-text-secondary">Any</span>
-            </label>
-            {AVAILABILITIES.map((a) => (
+            {AVAILABILITY_FILTER_OPTIONS.map((opt) => (
               <label
-                key={a}
+                key={opt.value || "any"}
                 className="flex items-center gap-2 text-sm cursor-pointer"
               >
                 <input
                   type="radio"
                   name="availability"
-                  checked={filters.availability === a}
-                  onChange={() => onChange({ availability: a })}
+                  checked={filters.availability === opt.value}
+                  onChange={() => onChange({ availability: opt.value })}
                   className="text-brand-600 focus:ring-brand-500"
                 />
-                <span className="text-text-secondary">
-                  {a.replace("_", " ")}
-                </span>
+                <span className="text-text-secondary">{opt.label}</span>
               </label>
             ))}
           </div>

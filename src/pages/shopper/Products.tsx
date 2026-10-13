@@ -2,9 +2,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { listProducts, type ListProductsParams } from "@/api/products";
 import ProductGrid from "@/components/product/ProductGrid";
-import ProductFilters, {
-  type Filters,
-} from "@/components/product/ProductFilters";
+import ProductFilters from "@/components/product/ProductFilters";
+import type { Filters } from "@/components/product/productFilterTypes";
 import EmptyState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
 import Button from "@/components/ui/Button";
