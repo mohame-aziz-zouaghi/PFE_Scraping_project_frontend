@@ -1,3 +1,4 @@
+// src/api/compare.ts
 import { api } from "./client";
 
 export interface GroupListing {
@@ -14,6 +15,7 @@ export interface GroupListing {
   url: string;
   main_image: string | null;
   last_checked: string | null;
+  effective_price: number | null;
 }
 
 export interface GroupDetail {
@@ -66,21 +68,6 @@ export interface ProductGroupResponse {
   listings: GroupListing[];
 }
 
-export interface CheapestResult {
-  base_group_id: string;
-  base_name: string;
-  variant_count: number;
-  site_count: number;
-  cheapest_site: string;
-  cheapest_price: number;
-}
-
-export interface CheapestResponse {
-  query: string;
-  count: number;
-  results: CheapestResult[];
-}
-
 export async function getProductGroup(
   productId: string,
 ): Promise<ProductGroupResponse> {
@@ -99,12 +86,12 @@ export async function getBaseGroupDetail(
   return api.get<BaseGroupDetail>(`/compare/base/${baseId}`);
 }
 
-export async function cheapestForQuery(
-  query: string,
-  limit = 10,
-  maxDistance = 0.5,
-): Promise<CheapestResponse> {
-  return api.get<CheapestResponse>("/compare/cheapest", {
-    query: { q: query, limit, max_distance: maxDistance },
-  });
+/** Effective price for a listing: discount if > 0, else regular. */
+export function effectivePriceForListing(
+  listing: GroupListing,
+): number | null {
+  if (listing.effective_price != null) return listing.effective_price;
+  const dp = listing.discount_price ?? 0;
+  if (dp > 0) return dp;
+  return listing.price ?? null;
 }

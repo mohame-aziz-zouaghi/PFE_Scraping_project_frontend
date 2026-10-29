@@ -1,0 +1,201 @@
+/* src/styles/rag-animations.css */
+/* RAG assistant animations. */
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { opacity: 1; }
+  95%            { opacity: 0.2; }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+@keyframes pulse-fast {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.06); opacity: 0.85; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.animate-bob         { animation: bob 2.4s ease-in-out infinite; }
+.animate-blink       { animation: blink 3s ease-in-out infinite; }
+.animate-glow        { animation: glow 1.8s ease-in-out infinite; }
+.animate-pulse-fast  { animation: pulse-fast 0.9s ease-in-out infinite; }
+.animate-slide-up    { animation: slide-up 0.35s ease-out; }
+.animate-slide-in    { animation: slide-in 0.28s ease-out; }
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-bob,
+  .animate-blink,
+  .animate-glow,
+  .animate-pulse-fast,
+  .animate-slide-up,
+  .animate-slide-in,
+  .animate-fade-in,
+  .animate-arm-swing,
+  .animate-arm-rest,
+  .animate-arm-rest-left,
+  .animate-head-tilt,
+  .animate-breathe,
+  .animate-nudge,
+  .animate-zzz-1,
+  .animate-zzz-2,
+  .animate-zzz-3,
+  .animate-thinking-dot,
+  .animate-eyes-think,
+  .animate-arm-thinking  {
+    animation: none;
+  }
+  
+}
+
+/* ── Wave animation: hand rotates back and forth ──────── */
+@keyframes arm-swing {
+  0%   { transform: rotate(0deg); }
+  8%   { transform: rotate(-75deg); }
+  20%  { transform: rotate(-60deg); }
+  32%  { transform: rotate(-90deg); }
+  44%  { transform: rotate(-60deg); }
+  56%  { transform: rotate(-90deg); }
+  68%  { transform: rotate(-75deg); }
+  85%  { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* ── Resting arm: very subtle sway ───────────────────── */
+@keyframes arm-rest {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(1.5deg); }
+}
+
+.animate-arm-swing {
+  /* Runs ONCE (2.2s), then the CSS keeps the arm at 0deg. */
+  animation: arm-swing 2.2s ease-in-out both;
+}.animate-arm-rest {
+  animation: arm-rest 4s ease-in-out infinite;
+}
+/* Wave only plays ONCE. It's not an infinite animation — we
+   want Sami to wave, then stop. `animation-iteration-count: 1`
+   is the default, so no extra property needed. */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in { animation: fade-in 0.5s ease-out; }
+
+/* ── Left arm at rest ────────────────────────────────────
+ * Very slight sway, phased opposite to the right arm so
+ * the two arms don't move in lockstep.
+ * ──────────────────────────────────────────────────────── */
+@keyframes arm-rest-left {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-1.5deg); }
+}
+
+.animate-arm-rest-left {
+  animation: arm-rest-left 4s ease-in-out infinite;
+  animation-delay: -2s;   /* half-cycle offset */
+}
+
+/* ── Head tilt for sleep ──────────────────────────────── */
+@keyframes head-tilt {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(8deg); }
+}
+
+.animate-head-tilt {
+  animation: head-tilt 0.6s ease-out forwards;
+}
+
+/* ── Slow breathing while asleep ──────────────────────── */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* ── Nudge: same wave but with a slight lean forward ─── */
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-2px); }
+  75%      { transform: translateX(2px); }
+}
+
+.animate-nudge {
+  animation: nudge 0.6s ease-in-out;
+}
+
+
+/* ── Zzz indicator ──────────────────────────────────────── */
+@keyframes zzz-float {
+  0%   { opacity: 0;   transform: translate(0, 0)   scale(0.8); }
+  15%  { opacity: 1;   transform: translate(2px, -2px) scale(1); }
+  100% { opacity: 0;   transform: translate(8px, -10px) scale(1.1); }
+}
+
+.animate-zzz-1 {
+  animation: zzz-float 2.4s ease-out infinite;
+  animation-delay: 0s;
+}
+.animate-zzz-2 {
+  animation: zzz-float 2.4s ease-out infinite;
+  animation-delay: 0.8s;
+}
+.animate-zzz-3 {
+  animation: zzz-float 2.4s ease-out infinite;
+  animation-delay: 1.6s;
+}
+
+
+/* ── Thinking dots ────────────────────────────────────── */
+@keyframes thinking-dot {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+.animate-thinking-dot {
+  animation: thinking-dot 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── Eyes glancing side to side while thinking ────────── */
+@keyframes eyes-think {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-1.5px); }
+  75%      { transform: translateX(1.5px); }
+}
+
+.animate-eyes-think {
+  animation: eyes-think 2s ease-in-out infinite;
+}
+
+/* ── Arm rests near chin while thinking ──────────────── */
+@keyframes arm-thinking {
+  0%, 100% { transform: rotate(-135deg); }
+  50%      { transform: rotate(-140deg); }
+}
+
+.animate-arm-thinking {
+  animation: arm-thinking 3s ease-in-out infinite;
+  transform-origin: 70px 70px;
+}

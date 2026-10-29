@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { useAuth } from "@/hooks/useAuth";
 import Badge from "@/components/ui/Badge";
 import { useWishlist } from "@/hooks/useWishlist";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export default function Header() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -24,7 +25,7 @@ export default function Header() {
     );
 
   return (
-<header className="bg-surface-elevated/90 backdrop-blur border-b border-border-subtle sticky top-0 z-30">
+    <header className="bg-surface-elevated/90 backdrop-blur border-b border-border-subtle sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
@@ -81,16 +82,21 @@ export default function Header() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            {/* ── Notification bell (auth only) ──────── */}
+            {isAuthenticated && <NotificationBell />}
+
             {isAuthenticated && user ? (
               <>
-              <Link
-                to="/account"
-                className="text-sm text-text-secondary hover:text-brand-700"
-              >
-                {user.email}
-              </Link>
+                <Link
+                  to="/account"
+                  className="text-sm text-text-secondary hover:text-brand-700"
+                >
+                  {user.email}
+                </Link>
                 {user.role !== "user" && (
-                  <Badge tone={user.role === "superadmin" ? "danger" : "warning"}>
+                  <Badge
+                    tone={user.role === "superadmin" ? "danger" : "warning"}
+                  >
                     {user.role}
                   </Badge>
                 )}
@@ -111,7 +117,8 @@ export default function Header() {
                 </Link>
                 <Link
                   to="/register"
-                  className="inline-flex items-center h-9 px-4 text-sm font-medium rounded-md bg-brand-600 text-white hover:bg-brand-700"                >
+                  className="inline-flex items-center h-9 px-4 text-sm font-medium rounded-md bg-brand-600 text-white hover:bg-brand-700"
+                >
                   Sign up
                 </Link>
               </>
@@ -142,17 +149,34 @@ export default function Header() {
 
       {mobileOpen && (
         <div className="md:hidden border-t border-border-subtle px-4 py-2 space-y-1">
-          <NavLink to="/" end className={linkClass} onClick={() => setMobileOpen(false)}>
+          <NavLink
+            to="/"
+            end
+            className={linkClass}
+            onClick={() => setMobileOpen(false)}
+          >
             Home
           </NavLink>
-          <NavLink to="/products" className={linkClass} onClick={() => setMobileOpen(false)}>
+          <NavLink
+            to="/products"
+            className={linkClass}
+            onClick={() => setMobileOpen(false)}
+          >
             Products
           </NavLink>
-          <NavLink to="/search" className={linkClass} onClick={() => setMobileOpen(false)}>
+          <NavLink
+            to="/search"
+            className={linkClass}
+            onClick={() => setMobileOpen(false)}
+          >
             Search
           </NavLink>
           {isAuthenticated && (
-            <NavLink to="/alerts" className={linkClass} onClick={() => setMobileOpen(false)}>
+            <NavLink
+              to="/alerts"
+              className={linkClass}
+              onClick={() => setMobileOpen(false)}
+            >
               Alerts
             </NavLink>
           )}
@@ -167,8 +191,22 @@ export default function Header() {
             </NavLink>
           )}
           {isAdmin && (
-            <NavLink to="/admin" className={linkClass} onClick={() => setMobileOpen(false)}>
+            <NavLink
+              to="/admin"
+              className={linkClass}
+              onClick={() => setMobileOpen(false)}
+            >
               Admin
+            </NavLink>
+          )}
+          {/* ── Notifications link on mobile (auth only) ── */}
+          {isAuthenticated && (
+            <NavLink
+              to="/notifications"
+              className={linkClass}
+              onClick={() => setMobileOpen(false)}
+            >
+              Notifications
             </NavLink>
           )}
         </div>
@@ -176,7 +214,6 @@ export default function Header() {
     </header>
   );
 }
-
 
 function WishlistCountBadge() {
   const { count, isLoading } = useWishlist();

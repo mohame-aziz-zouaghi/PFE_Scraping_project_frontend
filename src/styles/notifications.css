@@ -1,0 +1,136 @@
+/* src/styles/notifications.css
+ *
+ * Flowbite-compatible tokens for the NotificationBell component.
+ *
+ * The bell uses Flowbite's class names (bg-brand, bg-danger,
+ * text-body, etc.) to stay consistent with Flowbite design
+ * references. Your project already has its own palette
+ * (bg-brand-600, bg-surface-elevated, text-text-secondary, ...).
+ * This file bridges the two so the bell renders correctly with
+ * zero changes to the component.
+ *
+ * Values are chosen to match your existing brand/surface/state
+ * tokens. If your tailwind.config.ts already defines any of
+ * these, they win — @layer utilities are only the fallback.
+ */
+
+@layer utilities {
+  /* ── Brand ─────────────────────────────────────────── */
+  .bg-brand              { background-color: #0d9488; } /* teal-600 */
+  .bg-brand-600          { background-color: #0d9488; }
+  .bg-brand-700          { background-color: #0f766e; }
+  .text-brand-700        { color: #0f766e; }
+  .text-brand-400        { color: #2dd4bf; }
+  .text-fg-brand         { color: #0d9488; }
+  .hover\:text-brand-700:hover { color: #0f766e; }
+
+  /* ── Status ────────────────────────────────────────── */
+  .bg-danger             { background-color: #dc2626; } /* red-600 */
+  .bg-danger-600         { background-color: #dc2626; }
+  .text-danger           { color: #dc2626; }
+  .bg-success            { background-color: #16a34a; } /* green-600 */
+
+  /* ── Surfaces ──────────────────────────────────────── */
+  .bg-surface-elevated       { background-color: #ffffff; }
+  .bg-neutral-primary-soft   { background-color: #ffffff; }
+  .bg-neutral-secondary-medium{ background-color: #f9fafb; }
+  .bg-neutral-tertiary-medium{ background-color: #f3f4f6; }
+  .bg-surface-overlay        { background-color: #f3f4f6; }
+  .hover\:bg-neutral-secondary-medium:hover { background-color: #f9fafb; }
+  .hover\:bg-neutral-tertiary-medium:hover  { background-color: #f3f4f6; }
+
+  /* ── Text ──────────────────────────────────────────── */
+  .text-body             { color: #6b7280; } /* gray-500 */
+  .text-heading          { color: #111827; } /* gray-900 */
+  .text-text-primary     { color: #111827; }
+  .text-text-secondary   { color: #6b7280; }
+
+  /* ── Borders ───────────────────────────────────────── */
+  .border-buffer         { border-color: #e5e7eb; } /* gray-200 */
+  .border-buffer-medium  { border-color: #d1d5db; } /* gray-300 */
+  .border-border-subtle  { border-color: #e5e7eb; }
+  .divide-default        > * + * { border-top-color: #e5e7eb; }
+  .divide-default-medium > * + * { border-top-color: #e5e7eb; }
+
+  /* ── Rounded ───────────────────────────────────────── */
+  .rounded-base          { border-radius: 0.5rem; }
+
+  /* ── Unread dot: keep it visible against both light/dark */
+  .bg-danger.border-buffer {
+    box-shadow: 0 0 0 2px #ffffff;
+  }
+}
+
+/* ── Dark mode overrides ────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  @layer utilities {
+    .bg-surface-elevated,
+    .bg-neutral-primary-soft   { background-color: #1f2937; } /* gray-800 */
+    .bg-neutral-secondary-medium{ background-color: #111827; }
+    .bg-neutral-tertiary-medium{ background-color: #0f172a; }
+    .bg-surface-overlay        { background-color: #0f172a; }
+    .hover\:bg-neutral-secondary-medium:hover { background-color: #111827; }
+    .hover\:bg-neutral-tertiary-medium:hover  { background-color: #0f172a; }
+
+    .text-body,
+    .text-text-secondary       { color: #9ca3af; } /* gray-400 */
+    .text-heading,
+    .text-text-primary         { color: #f3f4f6; } /* gray-100 */
+
+    .border-buffer,
+    .border-border-subtle      { border-color: #374151; } /* gray-700 */
+    .border-buffer-medium      { border-color: #4b5563; } /* gray-600 */
+    .divide-default        > * + * { border-top-color: #374151; }
+    .divide-default-medium > * + * { border-top-color: #374151; }
+
+    .bg-danger.border-buffer {
+      box-shadow: 0 0 0 2px #111827;
+    }
+  }
+}
+
+/* ── Scrollbar polish for the notification list ─────── */
+#dropdownNotification .overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+#dropdownNotification .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+#dropdownNotification .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 3px;
+}
+@media (prefers-color-scheme: dark) {
+  #dropdownNotification .overflow-y-auto {
+    scrollbar-color: #4b5563 transparent;
+  }
+  #dropdownNotification .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+  }
+}
+
+/* ── Bell "ring" animation on new notification ──────── */
+/* Not used yet — ready for the WebSocket push path. */
+@keyframes notif-bell-ring {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70% { transform: rotate(-8deg); }
+  20%, 40%, 60%, 80% { transform: rotate(8deg); }
+}
+.notif-bell-ring {
+  animation: notif-bell-ring 1s ease-in-out;
+  transform-origin: 50% 10%;
+}
+
+
+/* New-notification badge — gentle pop when it appears */
+@keyframes notif-badge-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.notif-badge-pop {
+  animation: notif-badge-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+  will-change: transform, opacity;
+}

@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@import "./styles/notifications.css";
+
 /* ─── Base theme tokens ─────────────────────────────────── */
 :root {
   color-scheme: light dark;

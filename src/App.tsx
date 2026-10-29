@@ -32,8 +32,13 @@ import SuperBackfill from "@/pages/superadmin/SuperBackfill";
 import SuperAudit from "@/pages/superadmin/SuperAudit";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";   // ← NEW
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Wishlist from "./pages/shopper/wishlist";
+import { ChatLauncher } from "./components/rag/ChatLauncher";
+
+import "./styles/rag-animations.css";
+import CompareProduct from "./pages/shopper/CompareProduct";
 
 export default function App() {
   const hydrate = useAuth().hydrate;
@@ -42,10 +47,16 @@ export default function App() {
     void hydrate();
   }, [hydrate]);
 
+  // ── Notification pipeline ──────────────────────────
+  // Mount once. Opens /ws/user and seeds the store.
+  // Runs whether the user is authenticated or not — the
+  // hook self-skips when there is no token.
+  useNotifications();
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* â”€â”€ Public (shopper) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Public (shopper) ───────────────────── */}
         <Route element={<ShopperLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
@@ -55,15 +66,15 @@ export default function App() {
           <Route path="/404" element={<NotFound />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
 
-          {/* Auth-only shopper routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/account" element={<Account />} />
             <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/compare/product/:id" element={<CompareProduct />} />
           </Route>
         </Route>
 
-        {/* â”€â”€ Auth pages (redirect if already in) â”€â”€â”€â”€ */}
+        {/* ── Auth pages ─────────────────────────── */}
         <Route element={<ShopperLayout />}>
           <Route element={<AnonymousOnlyRoute />}>
             <Route path="/login" element={<Login />} />
@@ -71,7 +82,7 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* â”€â”€ Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Admin ──────────────────────────────── */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
@@ -82,7 +93,7 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* â”€â”€ Super admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Super admin ────────────────────────── */}
         <Route element={<SuperAdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="/super" element={<SuperDashboard />} />
@@ -92,9 +103,10 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* â”€â”€ Fallback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Fallback ───────────────────────────── */}
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
+      <ChatLauncher />
     </BrowserRouter>
   );
 }

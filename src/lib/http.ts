@@ -1,3 +1,4 @@
+// src/lib/http.ts
 import { env } from "./env";
 
 export interface ApiErrorBody {
@@ -41,15 +42,39 @@ export interface RequestOptions {
   skipRefresh?: boolean;
 }
 
+// ── tokenStore: in-memory token + change subscription ────────
+type TokenListener = (token: string | null) => void;
+
 let accessToken: string | null = null;
+const tokenListeners = new Set<TokenListener>();
 
 export const tokenStore = {
   get: (): string | null => accessToken,
   set: (token: string | null): void => {
     accessToken = token;
+    for (const fn of tokenListeners) {
+      try {
+        fn(token);
+      } catch {
+        /* ignore */
+      }
+    }
   },
   clear: (): void => {
     accessToken = null;
+    for (const fn of tokenListeners) {
+      try {
+        fn(null);
+      } catch {
+        /* ignore */
+      }
+    }
+  },
+  subscribe: (fn: TokenListener): (() => void) => {
+    tokenListeners.add(fn);
+    return () => {
+      tokenListeners.delete(fn);
+    };
   },
 };
 
